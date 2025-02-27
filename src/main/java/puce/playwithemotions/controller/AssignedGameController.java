@@ -34,12 +34,18 @@ public class AssignedGameController {
         return ResponseEntity.status(HttpStatus.CREATED).body(assignedGame);
     }
 
-
     // 📌 Obtener juegos asignados a un curso
     @GetMapping("/course/{courseId}")
     public ResponseEntity<List<AssignedGame>> getGamesByCourse(@PathVariable UUID courseId) {
         List<AssignedGame> assignedGames = assignedGameService.getGamesByCourse(courseId);
         return ResponseEntity.ok(assignedGames);
+    }
+
+    // 📌 Desasignar un juego de un curso
+    @DeleteMapping("/{courseId}/{gameId}")
+    public ResponseEntity<String> unassignGame(@PathVariable UUID courseId, @PathVariable UUID gameId) {
+        assignedGameService.unassignGameFromCourse(courseId, gameId);
+        return ResponseEntity.ok("Juego desasignado correctamente.");
     }
 
     // 📌 Obtener juegos asignados por un profesor

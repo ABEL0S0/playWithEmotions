@@ -37,7 +37,7 @@ public class AssignedGameService {
         this.userRepository = userRepository;
     }
 
-    // 📌 Asignar un juego a un curso
+    // 📌 Asignar un juego a un curso (verifica si ya existe)
     public AssignedGame assignGameToCourse(UUID profesorId, UUID courseId, UUID gameId) {
         User profesor = userRepository.findById(profesorId)
                 .orElseThrow(() -> new IllegalArgumentException("El profesor no existe"));
@@ -48,8 +48,10 @@ public class AssignedGameService {
         Game juego = gameRepository.findById(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("El juego no existe"));
 
-        if (!curso.getProfesor().getId().equals(profesorId)) {
-            throw new IllegalArgumentException("No puedes asignar juegos a un curso que no te pertenece.");
+        // Verificar si el juego ya está asignado al curso
+        boolean exists = assignedGameRepository.existsByCursoAndJuego(curso, juego);
+        if (exists) {
+            throw new IllegalArgumentException("Este juego ya está asignado a este curso.");
         }
 
         AssignedGame assignedGame = new AssignedGame();
@@ -60,6 +62,21 @@ public class AssignedGameService {
 
         return assignedGameRepository.save(assignedGame);
     }
+
+    // 📌 Desasignar un juego de un curso
+    public void unassignGameFromCourse(UUID courseId, UUID gameId) {
+        Course curso = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("El curso no existe"));
+
+        Game juego = gameRepository.findById(gameId)
+                .orElseThrow(() -> new IllegalArgumentException("El juego no existe"));
+
+        AssignedGame assignedGame = assignedGameRepository.findByCursoAndJuego(curso, juego)
+                .orElseThrow(() -> new IllegalArgumentException("El juego no está asignado a este curso."));
+
+        assignedGameRepository.delete(assignedGame);
+    }
+
 
     // 📌 Obtener juegos asignados a un curso
     public List<AssignedGame> getGamesByCourse(UUID courseId) {

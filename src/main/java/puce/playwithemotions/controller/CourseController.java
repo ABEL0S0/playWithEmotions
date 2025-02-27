@@ -40,4 +40,12 @@ public class CourseController {
     public ResponseEntity<List<Course>> getCoursesByProfesor(@PathVariable UUID profesorId) {
         return ResponseEntity.ok(courseService.getCoursesByProfesor(profesorId));
     }
+
+    // 4️⃣ Eliminar un curso
+    @DeleteMapping("/{cursoId}")
+    public ResponseEntity<String> deleteCourse(@PathVariable UUID cursoId) {
+        courseService.deleteCourse(cursoId);
+        return ResponseEntity.ok("Curso eliminado correctamente.");
+    }
+
 }

@@ -36,6 +36,14 @@ public class CourseService {
         return courseRepository.save(curso);
     }
 
+    public void deleteCourse(UUID cursoId) {
+        Course curso = courseRepository.findById(cursoId)
+                .orElseThrow(() -> new IllegalArgumentException("Curso no encontrado."));
+
+        courseRepository.delete(curso);
+    }
+
+
     public Course getCourseByCodigo(String codigo) {
         return courseRepository.findByCodigo(codigo)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró un curso con este código."));
