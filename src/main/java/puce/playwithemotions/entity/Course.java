@@ -14,6 +14,8 @@ public class Course {
 
     private String nombre;
 
+    private boolean progresivo; // true = progresivo, false = libre
+
     @Column(unique = true, nullable = false)
     private String codigo; // Código único para unirse
 
@@ -24,11 +26,12 @@ public class Course {
     public Course() {
     }
 
-    public Course(UUID id, String nombre, String codigo, User profesor) {
+    public Course(UUID id, String nombre, String codigo, User profesor, boolean progresivo) {
         this.id = id;
         this.nombre = nombre;
         this.codigo = codigo;
         this.profesor = profesor;
+        this.progresivo = progresivo;
     }
 
     public UUID getId() {
@@ -61,6 +64,14 @@ public class Course {
 
     public void setProfesor(User profesor) {
         this.profesor = profesor;
+    }
+
+    public boolean isProgresivo() {
+        return progresivo;
+    }
+
+    public void setProgresivo(boolean progresivo) {
+        this.progresivo = progresivo;
     }
 }
 

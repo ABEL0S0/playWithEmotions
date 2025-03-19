@@ -48,5 +48,16 @@ public class StudentProgressService {
     public List<StudentProgress> getStudentsWhoCompletedGame(UUID gameId) {
         return studentProgressRepository.findByJuegoIdAndCompletadoTrue(gameId);
     }
+
+    // Obtener el progreso de un estudiante en un curso
+    public List<StudentProgress> getProgressByStudentAndCourse(UUID studentId, UUID cursoId) {
+        return studentProgressRepository.findByEstudianteIdAndCursoId(studentId, cursoId);
+    }
+
+    // Obtener el progreso de todos los estudiantes en un curso
+    public List<StudentProgress> getProgressByCourse(UUID cursoId) {
+        return studentProgressRepository.findByCursoId(cursoId);
+    }
 }
+
 

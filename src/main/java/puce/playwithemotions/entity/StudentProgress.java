@@ -19,19 +19,21 @@ public class StudentProgress {
     @ManyToOne
     private Game juego;
 
+    @ManyToOne
+    private Course curso;
+
     private int nivelActual;
-
     private boolean completado;
-
     private LocalDateTime fechaCompletado;
 
     public StudentProgress() {
     }
 
-    public StudentProgress(UUID id, User estudiante, Game juego, int nivelActual, boolean completado, LocalDateTime fechaCompletado) {
+    public StudentProgress(UUID id, User estudiante, Game juego, Course curso, int nivelActual, boolean completado, LocalDateTime fechaCompletado) {
         this.id = id;
         this.estudiante = estudiante;
         this.juego = juego;
+        this.curso = curso;
         this.nivelActual = nivelActual;
         this.completado = completado;
         this.fechaCompletado = fechaCompletado;
@@ -59,6 +61,14 @@ public class StudentProgress {
 
     public void setJuego(Game juego) {
         this.juego = juego;
+    }
+
+    public Course getCurso() {
+        return curso;
+    }
+
+    public void setCurso(Course curso) {
+        this.curso = curso;
     }
 
     public int getNivelActual() {
