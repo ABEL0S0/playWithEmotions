@@ -31,18 +31,16 @@ public class CourseService {
             throw new IllegalArgumentException("Solo los profesores pueden crear cursos.");
         }
 
-        curso.setProfesor(profesor); // Se asigna directamente el profesor
-        curso.setCodigo(UUID.randomUUID().toString().substring(0, 6)); // Código único de 6 caracteres
+        curso.setProfesor(profesor);
+        curso.setCodigo(UUID.randomUUID().toString().substring(0, 6));
         return courseRepository.save(curso);
     }
 
     public void deleteCourse(UUID cursoId) {
         Course curso = courseRepository.findById(cursoId)
                 .orElseThrow(() -> new IllegalArgumentException("Curso no encontrado."));
-
         courseRepository.delete(curso);
     }
-
 
     public Course getCourseByCodigo(String codigo) {
         return courseRepository.findByCodigo(codigo)
@@ -52,7 +50,15 @@ public class CourseService {
     public List<Course> getCoursesByProfesor(UUID profesorId) {
         User profesor = userService.getUserById(profesorId)
                 .orElseThrow(() -> new IllegalArgumentException("El profesor no existe."));
+        return courseRepository.findByProfesor(profesor);
+    }
 
-        return courseRepository.findByProfesor(profesor); // Se pasa el profesor directamente
+    // ✅ Método para actualizar si el curso es progresivo o libre
+    public Course updateProgresivo(UUID cursoId, boolean progresivo) {
+        Course curso = courseRepository.findById(cursoId)
+                .orElseThrow(() -> new IllegalArgumentException("Curso no encontrado."));
+
+        curso.setProgresivo(progresivo);
+        return courseRepository.save(curso);
     }
 }

@@ -13,4 +13,5 @@ import java.util.UUID;
 public interface CourseRepository extends JpaRepository<Course, UUID> {
     Optional<Course> findByCodigo(String codigo);
     List<Course> findByProfesor(User profesor);
+    List<Course> findByProgresivo(boolean progresivo);
 }

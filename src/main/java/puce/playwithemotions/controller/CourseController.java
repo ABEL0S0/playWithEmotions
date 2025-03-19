@@ -48,4 +48,10 @@ public class CourseController {
         return ResponseEntity.ok("Curso eliminado correctamente.");
     }
 
+    // ✅ Endpoint para actualizar el campo "progresivo"
+    @PatchMapping("/{cursoId}/progresivo")
+    public ResponseEntity<Course> updateProgresivo(@PathVariable UUID cursoId, @RequestParam boolean progresivo) {
+        return ResponseEntity.ok(courseService.updateProgresivo(cursoId, progresivo));
+    }
+
 }
