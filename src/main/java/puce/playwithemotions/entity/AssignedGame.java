@@ -24,17 +24,20 @@ public class AssignedGame {
     @JoinColumn(name = "game_id", nullable = false)
     private Game juego; // Juego asignado
 
+    private int orden; // Define el orden en el que se deben jugar
+
     private LocalDateTime fechaAsignacion = LocalDateTime.now();
 
     public AssignedGame() {
     }
 
-    public AssignedGame(UUID id, User profesor, Course curso, Game juego, LocalDateTime fechaAsignacion) {
+    public AssignedGame(UUID id, User profesor, Course curso, Game juego, int orden, LocalDateTime fechaAsignacion) {
         this.id = id;
         this.profesor = profesor;
         this.curso = curso;
         this.juego = juego;
         this.fechaAsignacion = fechaAsignacion;
+        this.orden = orden;
     }
 
     public UUID getId() {
@@ -67,6 +70,14 @@ public class AssignedGame {
 
     public void setJuego(Game juego) {
         this.juego = juego;
+    }
+
+    public int getOrden() {
+        return orden;
+    }
+
+    public void setOrden(int orden) {
+        this.orden = orden;
     }
 
     public LocalDateTime getFechaAsignacion() {

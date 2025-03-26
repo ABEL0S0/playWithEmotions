@@ -6,6 +6,7 @@ import puce.playwithemotions.entity.StudentProgress;
 import puce.playwithemotions.service.StudentProgressService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,14 +34,6 @@ public class StudentProgressController {
         StudentProgress progress = studentProgressService.updateProgress(id, updatedProgress);
         return ResponseEntity.ok(progress);
     }
-
-    // Marcar un juego como completado
-    @PutMapping("/{id}/complete")
-    public ResponseEntity<StudentProgress> completeGame(@PathVariable UUID id) {
-        StudentProgress progress = studentProgressService.completeGame(id);
-        return ResponseEntity.ok(progress);
-    }
-
     // Obtener el progreso de un estudiante en un juego específico
     @GetMapping("/student/{studentId}/game/{gameId}")
     public ResponseEntity<StudentProgress> getStudentProgress(@PathVariable UUID studentId, @PathVariable UUID gameId) {
@@ -75,4 +68,16 @@ public class StudentProgressController {
         List<StudentProgress> progressList = studentProgressService.getProgressByCourse(courseId);
         return ResponseEntity.ok(progressList);
     }
+
+    @PostMapping("/complete")
+    public ResponseEntity<?> completeGame(@RequestBody UUID studentId, @RequestBody UUID courseId, @RequestBody UUID gameId) {
+        boolean completado = studentProgressService.markGameAsCompleted(studentId, courseId, gameId);
+
+        if (completado) {
+            return ResponseEntity.ok(Map.of("message", "Juego marcado como completado"));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("message", "No se pudo registrar el progreso"));
+        }
+    }
+
 }

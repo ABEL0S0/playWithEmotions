@@ -31,6 +31,10 @@ public class User {
         this.role = role;
     }
 
+    public User(UUID studentId) {
+        this.id = studentId;
+    }
+
     public UUID getId() {
         return id;
     }

@@ -1,7 +1,11 @@
 package puce.playwithemotions.service;
 
 import org.springframework.stereotype.Service;
+import puce.playwithemotions.entity.AssignedGame;
+import puce.playwithemotions.entity.Course;
 import puce.playwithemotions.entity.StudentProgress;
+import puce.playwithemotions.entity.User;
+import puce.playwithemotions.repository.AssignedGameRepository;
 import puce.playwithemotions.repository.StudentProgressRepository;
 
 import java.time.LocalDateTime;
@@ -13,9 +17,12 @@ import java.util.UUID;
 public class StudentProgressService {
 
     private final StudentProgressRepository studentProgressRepository;
+    private final AssignedGameRepository assignedGameRepository;
 
-    public StudentProgressService(StudentProgressRepository studentProgressRepository) {
+
+    public StudentProgressService(StudentProgressRepository studentProgressRepository, AssignedGameRepository assignedGameRepository) {
         this.studentProgressRepository = studentProgressRepository;
+        this.assignedGameRepository = assignedGameRepository;
     }
 
     public StudentProgress createProgress(StudentProgress studentProgress) {
@@ -57,6 +64,36 @@ public class StudentProgressService {
     // Obtener el progreso de todos los estudiantes en un curso
     public List<StudentProgress> getProgressByCourse(UUID cursoId) {
         return studentProgressRepository.findByCursoId(cursoId);
+    }
+
+    public boolean markGameAsCompleted(UUID studentId, UUID courseId, UUID gameId) {
+        // 1. Buscar si ya existe progreso registrado para este estudiante y juego
+        Optional<StudentProgress> existingProgress = studentProgressRepository.findByEstudianteIdAndJuegoId(studentId, gameId);
+
+        StudentProgress progress;
+        if (existingProgress.isPresent()) {
+            // 2. Si ya existe, actualizarlo a completado
+            progress = existingProgress.get();
+        } else {
+            // 3. Si no existe, crear un nuevo registro de progreso
+            Optional<AssignedGame> assignedGame = assignedGameRepository.findById(gameId);
+            if (assignedGame.isEmpty()) {
+                return false; // No se encontró el juego asignado al curso
+            }
+
+            progress = new StudentProgress();
+            progress.setEstudiante(new User(studentId)); // Se asume que User es la entidad de estudiante
+            progress.setCurso(new Course(courseId));
+            progress.setJuego(assignedGame.get().getJuego());
+            progress.setNivelActual(1); // Se puede ajustar según la lógica del juego
+        }
+
+        // 4. Marcar como completado
+        progress.setCompletado(true);
+        progress.setFechaCompletado(LocalDateTime.now());
+        studentProgressRepository.save(progress);
+
+        return true;
     }
 }
 

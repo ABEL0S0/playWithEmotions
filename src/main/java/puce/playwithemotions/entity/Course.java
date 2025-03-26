@@ -34,6 +34,10 @@ public class Course {
         this.progresivo = progresivo;
     }
 
+    public Course(UUID courseId) {
+        this.id = courseId;
+    }
+
     public UUID getId() {
         return id;
     }

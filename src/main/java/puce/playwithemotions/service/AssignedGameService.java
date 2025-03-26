@@ -1,21 +1,18 @@
 package puce.playwithemotions.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import puce.playwithemotions.entity.AssignedGame;
 import puce.playwithemotions.entity.Course;
 import puce.playwithemotions.entity.Game;
 import puce.playwithemotions.entity.User;
-import puce.playwithemotions.repository.AssignedGameRepository;
-import puce.playwithemotions.repository.CourseRepository;
-import puce.playwithemotions.repository.GameRepository;
-import puce.playwithemotions.repository.UserRepository;
+import puce.playwithemotions.repository.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AssignedGameService {
@@ -24,17 +21,20 @@ public class AssignedGameService {
     private final CourseRepository courseRepository;
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
+    private final StudentProgressRepository studentProgressRepository;
+
 
     @Autowired
     public AssignedGameService(
             AssignedGameRepository assignedGameRepository,
             CourseRepository courseRepository,
             GameRepository gameRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository, StudentProgressRepository studentProgressRepository) {
         this.assignedGameRepository = assignedGameRepository;
         this.courseRepository = courseRepository;
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
+        this.studentProgressRepository = studentProgressRepository;
     }
 
     // 📌 Asignar un juego a un curso (verifica si ya existe)
@@ -93,6 +93,54 @@ public class AssignedGameService {
         }
         return assignedGameRepository.findByProfesorId(profesorId);
     }
+
+    public List<AssignedGame> getUnlockedGames(UUID studentId, UUID courseId) {
+        // Obtener juegos ordenados
+        List<AssignedGame> juegos = assignedGameRepository.findByCursoIdOrderByOrdenAsc(courseId);
+
+        // Verificar si el curso es progresivo
+        boolean esProgresivo = juegos.get(0).getCurso().isProgresivo();
+
+        if (!esProgresivo) {
+            return juegos; // Si no es progresivo, devolver todos los juegos
+        }
+
+        // Obtener el último juego completado por el estudiante
+        int ultimoJuegoCompletado = studentProgressRepository.findLastCompletedGameOrder(studentId, courseId).orElse(0);
+
+        // Devolver juegos hasta el siguiente no completado
+        return juegos.stream()
+                .filter(juego -> juego.getOrden() <= ultimoJuegoCompletado + 1)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<AssignedGame> getNextGameForStudent(UUID studentId, UUID courseId) {
+        // 1. Buscar todos los juegos asignados al curso
+        List<AssignedGame> juegosOrdenados = assignedGameRepository.findByCursoIdOrderByOrdenAsc(courseId);
+
+        if (juegosOrdenados.isEmpty()) {
+            return Optional.empty(); // No hay juegos asignados, se devolverá 404
+        }
+
+        // 2. Obtener el último juego completado con su orden
+        Optional<Integer> lastCompletedOrder = studentProgressRepository.findLastCompletedGameOrder(studentId, courseId);
+
+        // 3. Buscar el siguiente juego con un orden mayor
+        // 4. Si no hay juegos completados, devolver el primer juego
+        return lastCompletedOrder.map(integer -> juegosOrdenados.stream()
+                .filter(juego -> juego.getOrden() > integer)
+                .findFirst()).orElseGet(() -> Optional.of(juegosOrdenados.get(0)));
+    }
+
+
+    public AssignedGame actualizarOrden(UUID assignedGameId, int nuevoOrden) {
+        AssignedGame assignedGame = assignedGameRepository.findById(assignedGameId)
+                .orElseThrow(() -> new RuntimeException("AssignedGame no encontrado"));
+
+        assignedGame.setOrden(nuevoOrden);
+        return assignedGameRepository.save(assignedGame);
+    }
+
 }
 
 
